@@ -1,4 +1,6 @@
 from InvestopediaApi import ita
+import aroon
+import time
 import bollinger as BB
 import numpy
 import json
@@ -8,30 +10,33 @@ import candle
 def getData(index="AAPL", frequency="1y"):
 
 
-    candleList=[];highList=[];lowList=[];openList=[];closeList=[];dateList=[]
+    candleList=[];
     response = requests.get('https://api.iextrading.com/1.0/stock/' + index + '/chart/' + frequency)
     data = json.loads(response.text)
 
     for i in data:
         if(i['high']>0 and i['low']>0) and i['close']>0:
-            #highList.append(i['high'])
-            #lowList.append(i['low'])
-            #openList.append(i['open'])
-            closeList.append(i['close'])
-            dateList.append(i['date'])
             candleList.append(candle.Candle(i['high'],i['open'],i['close'],i['low']))
-    return closeList,candleList,dateList
+    return candleList
 
 
 # main loop
 def run():
     print("running")
 
+    while(1):
+        print("wow")
+        time.sleep(1)
 
 
 
 if __name__ == "__main__":
-    closeList,candleList,dateList = getData("AAPL", "1y")
+    candleList= getData("AAPL", "1y")
     print("asdf")
-    for i in candleList:
-        i.candlePrint()
+    aroonU= aroon.aroonUp(candleList)
+    aroonD = aroon.aroonDown(candleList)
+   # for i in candleList:
+        #i.candlePrint()
+    for i,j in zip(aroonU,aroonD):
+        print(i," <----> ", j)
+    run()
